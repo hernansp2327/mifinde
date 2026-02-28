@@ -1,13 +1,16 @@
 import logo from "./assets/logo.png"
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom"
 import { useContext } from "react"
+
 import { FavoritosContext, FavoritosProvider } from "./context/FavoritosContext"
 import { UserContext, UserProvider } from "./context/UserContext"
+import { EventosProvider } from "./context/EventosContext"
 
 import Home from "./pages/Home"
 import Eventos from "./pages/Eventos"
 import EventoDetalle from "./pages/EventoDetalle"
 import MisEventos from "./pages/MisEventos"
+import CrearEvento from "./pages/CrearEvento"
 
 function AppContent() {
 
@@ -82,6 +85,7 @@ function AppContent() {
             <Route path="/eventos" element={<Eventos />} />
             <Route path="/eventos/:id" element={<EventoDetalle />} />
             <Route path="/mis-eventos" element={<MisEventos />} />
+            <Route path="/crear-evento" element={<CrearEvento />} />
           </Routes>
         </div>
 
@@ -93,9 +97,11 @@ function AppContent() {
 export default function App() {
   return (
     <UserProvider>
-      <FavoritosProvider>
-        <AppContent />
-      </FavoritosProvider>
+      <EventosProvider>
+        <FavoritosProvider>
+          <AppContent />
+        </FavoritosProvider>
+      </EventosProvider>
     </UserProvider>
   )
 }

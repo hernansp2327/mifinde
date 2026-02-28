@@ -1,20 +1,16 @@
-import { useState, useEffect, useContext } from "react"
+import { useState, useContext } from "react"
 import { Link } from "react-router-dom"
-import { eventos as eventosMock } from "../data/eventos"
+import { EventosContext } from "../context/EventosContext"
 import { FavoritosContext } from "../context/FavoritosContext"
 
 function Eventos() {
 
+  const { eventos } = useContext(EventosContext)
   const { favoritos, toggleFavorito } = useContext(FavoritosContext)
 
-  const [eventos, setEventos] = useState([])
   const [filtroFecha, setFiltroFecha] = useState("todos")
   const [ciudadSeleccionada, setCiudadSeleccionada] = useState("todas")
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("todas")
-
-  useEffect(() => {
-    setEventos(eventosMock)
-  }, [])
 
   const hoy = new Date()
   const hoyISO = hoy.toISOString().split("T")[0]
@@ -25,7 +21,6 @@ function Eventos() {
   const eventosFiltrados = eventos.filter(evento => {
     const fechaEvento = new Date(evento.fecha)
 
-    // Filtro fecha
     if (filtroFecha === "hoy" && evento.fecha !== hoyISO) return false
 
     if (filtroFecha === "7dias") {
@@ -46,11 +41,9 @@ function Eventos() {
       if (!(dia === 5 || dia === 6 || dia === 0)) return false
     }
 
-    // Filtro ciudad
     if (ciudadSeleccionada !== "todas" && evento.lugar !== ciudadSeleccionada)
       return false
 
-    // Filtro categoría
     if (categoriaSeleccionada !== "todas" && evento.categoria !== categoriaSeleccionada)
       return false
 
@@ -64,7 +57,6 @@ function Eventos() {
         Eventos ({eventosFiltrados.length})
       </h2>
 
-      {/* Filtros de fecha */}
       <div style={{ display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap" }}>
         {["todos", "hoy", "finde", "7dias", "mes"].map(opcion => (
           <button
@@ -88,7 +80,6 @@ function Eventos() {
         ))}
       </div>
 
-      {/* Filtros ciudad y categoría */}
       <div style={{ display: "flex", gap: "20px", marginBottom: "30px", flexWrap: "wrap" }}>
         <select
           value={ciudadSeleccionada}
@@ -111,9 +102,9 @@ function Eventos() {
         </select>
       </div>
 
-      {/* Lista de eventos */}
       {eventosFiltrados.map(evento => {
-        const esFavorito = favoritos.includes(evento.id)
+        const idNumerico = Number(evento.id)
+        const esFavorito = favoritos.includes(idNumerico)
 
         return (
           <div
@@ -137,7 +128,7 @@ function Eventos() {
               </Link>
 
               <button
-                onClick={() => toggleFavorito(evento.id)}
+                onClick={() => toggleFavorito(idNumerico)}
                 style={{
                   background: esFavorito ? "red" : "#ccc",
                   color: "white",
