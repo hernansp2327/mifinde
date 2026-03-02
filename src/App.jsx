@@ -6,16 +6,22 @@ import { FavoritosContext, FavoritosProvider } from "./context/FavoritosContext"
 import { UserContext, UserProvider } from "./context/UserContext"
 import { EventosProvider } from "./context/EventosContext"
 
+import ProtectedRoute from "./components/ProtectedRoute"
+
 import Home from "./pages/Home"
 import Eventos from "./pages/Eventos"
 import EventoDetalle from "./pages/EventoDetalle"
 import MisEventos from "./pages/MisEventos"
 import CrearEvento from "./pages/CrearEvento"
+import Admin from "./pages/Admin"
 
 function AppContent() {
 
   const { favoritos } = useContext(FavoritosContext)
   const { usuario } = useContext(UserContext)
+
+  const puedeCrearEvento =
+    usuario.rol === "admin" || usuario.rol === "organizador"
 
   return (
     <BrowserRouter>
@@ -52,7 +58,7 @@ function AppContent() {
               Eventos
             </Link>
 
-            {usuario.rol === "organizador" && (
+            {puedeCrearEvento && (
               <Link 
                 to="/crear-evento"
                 style={{ color: "white", textDecoration: "none" }}
@@ -72,6 +78,15 @@ function AppContent() {
               ❤️ {favoritos.length}
             </Link>
 
+            {usuario.rol === "admin" && (
+              <Link 
+                to="/admin"
+                style={{ color: "white", textDecoration: "none" }}
+              >
+                Admin
+              </Link>
+            )}
+
             <span style={{ color: "white", fontSize: "14px" }}>
               {usuario.nombre} ({usuario.rol})
             </span>
@@ -85,7 +100,24 @@ function AppContent() {
             <Route path="/eventos" element={<Eventos />} />
             <Route path="/eventos/:id" element={<EventoDetalle />} />
             <Route path="/mis-eventos" element={<MisEventos />} />
-            <Route path="/crear-evento" element={<CrearEvento />} />
+
+            <Route
+              path="/crear-evento"
+              element={
+                puedeCrearEvento
+                  ? <CrearEvento />
+                  : <Home />
+              }
+            />
+
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <Admin />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </div>
 

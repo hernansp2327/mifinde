@@ -7,7 +7,7 @@ export function UserProvider({ children }) {
   // Simulamos usuario logueado
   const [usuario, setUsuario] = useState({
     nombre: "Hernán",
-    rol: "organizador" // cambiar a "usuario" para probar
+    rol: "admin" // cambiar a "usuario" para probar
   })
 
   const cambiarRol = (nuevoRol) => {

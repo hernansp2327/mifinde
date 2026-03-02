@@ -15,10 +15,13 @@ function Eventos() {
   const hoy = new Date()
   const hoyISO = hoy.toISOString().split("T")[0]
 
-  const ciudades = [...new Set(eventos.map(e => e.lugar))]
-  const categorias = [...new Set(eventos.map(e => e.categoria))]
+  // 🔐 SOLO eventos aprobados visibles al público
+  const eventosAprobados = eventos.filter(e => e.estado === "aprobado")
 
-  const eventosFiltrados = eventos.filter(evento => {
+  const ciudades = [...new Set(eventosAprobados.map(e => e.lugar))]
+  const categorias = [...new Set(eventosAprobados.map(e => e.categoria))]
+
+  const eventosFiltrados = eventosAprobados.filter(evento => {
     const fechaEvento = new Date(evento.fecha)
 
     if (filtroFecha === "hoy" && evento.fecha !== hoyISO) return false
@@ -50,11 +53,18 @@ function Eventos() {
     return true
   })
 
+  // ⭐ Destacados arriba
+  const eventosOrdenados = [...eventosFiltrados].sort((a, b) => {
+    if (a.destacado && !b.destacado) return -1
+    if (!a.destacado && b.destacado) return 1
+    return 0
+  })
+
   return (
     <div>
 
       <h2 style={{ marginBottom: "20px" }}>
-        Eventos ({eventosFiltrados.length})
+        Eventos ({eventosOrdenados.length})
       </h2>
 
       <div style={{ display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap" }}>
@@ -102,7 +112,7 @@ function Eventos() {
         </select>
       </div>
 
-      {eventosFiltrados.map(evento => {
+      {eventosOrdenados.map(evento => {
         const idNumerico = Number(evento.id)
         const esFavorito = favoritos.includes(idNumerico)
 
@@ -110,14 +120,18 @@ function Eventos() {
           <div
             key={evento.id}
             style={{
-              border: "1px solid #ddd",
+              border: evento.destacado ? "2px solid #ff7a00" : "1px solid #ddd",
               padding: "20px",
               marginBottom: "20px",
               borderRadius: "10px",
-              background: "#fafafa"
+              background: evento.destacado ? "#fff3e6" : "#fafafa"
             }}
           >
-            <h3>{evento.titulo}</h3>
+            <h3>
+              {evento.destacado && "⭐ "}
+              {evento.titulo}
+            </h3>
+
             <p><strong>Lugar:</strong> {evento.lugar}</p>
             <p><strong>Fecha:</strong> {evento.fecha}</p>
             <p><strong>Categoría:</strong> {evento.categoria}</p>
