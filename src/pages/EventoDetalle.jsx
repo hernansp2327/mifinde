@@ -7,47 +7,73 @@ export default function EventoDetalle() {
   const { id } = useParams()
   const { eventos } = useContext(EventosContext)
 
-  // Comparación blindada por string
-  const evento = eventos.find(e => String(e.id) === String(id))
+  // primero intenta buscar por ID
+  let evento = eventos.find(e => String(e.id) === String(id))
 
-  console.log("ID recibido:", id)
-  console.log("Eventos actuales:", eventos)
+  // si no encuentra, intenta por posición
+  if (!evento) {
+    evento = eventos[Number(id)]
+  }
 
   if (!evento) {
     return (
-      <div>
-        <h2>Evento no encontrado</h2>
-        <p>Puede que el ID no coincida o el evento haya sido eliminado.</p>
+      <div className="p-6">
+        <h2 className="text-2xl font-bold">Evento no encontrado</h2>
+        <p>Puede que el evento haya sido eliminado.</p>
       </div>
     )
   }
 
   return (
-    <div>
-      <h2>{evento.titulo}</h2>
+    <div className="p-6 max-w-3xl mx-auto">
 
-      <p><strong>Lugar:</strong> {evento.lugar}</p>
-
-      <p><strong>Fechas:</strong></p>
-
-      {evento.fechas && evento.fechas.length > 0 ? (
-        <ul>
-          {evento.fechas.map((f, i) => (
-            <li key={i}>{f}</li>
-          ))}
-        </ul>
-      ) : evento.fecha ? (
-        <p>{evento.fecha}</p>
-      ) : (
-        <p>Sin fecha</p>
+      {evento.imagen && (
+        <img
+          src={evento.imagen}
+          alt={evento.titulo}
+          className="w-full h-80 object-cover rounded-lg mb-6"
+        />
       )}
+
+      <h1 className="text-3xl font-bold mb-3">
+        {evento.titulo}
+      </h1>
+
+      <p className="text-lg mb-2">
+        📍 {evento.ciudad || "Ciudad no especificada"}, {evento.provincia || ""}
+      </p>
+
+      <p className="mb-2">
+        🏷️ {evento.categoria}
+      </p>
+
+      <p className="mb-4">
+        📌 {evento.lugar}
+      </p>
+
+      <div className="mb-6">
+
+        <strong>Fechas:</strong>
+
+        {evento.fechas && evento.fechas.length > 0 ? (
+          <ul className="list-disc ml-5">
+            {evento.fechas.map((f, i) => (
+              <li key={i}>{f}</li>
+            ))}
+          </ul>
+        ) : (
+          <p>Sin fecha</p>
+        )}
+
+      </div>
 
       {evento.descripcion && (
-        <div style={{ marginTop: "20px" }}>
+        <div>
           <strong>Descripción:</strong>
-          <p>{evento.descripcion}</p>
+          <p className="mt-2 text-lg">{evento.descripcion}</p>
         </div>
       )}
+
     </div>
   )
 }

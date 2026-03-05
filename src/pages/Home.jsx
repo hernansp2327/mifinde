@@ -1,66 +1,220 @@
-import { Link } from "react-router-dom"
+import { useState, useContext } from "react";
+import { EventosContext } from "../context/EventosContext";
+import { Link } from "react-router-dom";
 
-export default function Home() {
+function Home() {
+
+  const contexto = useContext(EventosContext);
+  const eventos = contexto?.eventos || [];
+
+  const [busqueda, setBusqueda] = useState("");
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todos");
+
+  const categorias = [
+    "Todos",
+    "Fiesta",
+    "Música",
+    "Gastronomía",
+    "Tradicionalista",
+    "Deportes",
+    "Cultura",
+    "Motor",
+    "Familiar"
+  ];
+
+  const eventosAprobados = eventos.filter(
+    (evento) => evento.estado === "aprobado"
+  );
+
+  const eventosFiltrados = eventosAprobados.filter((evento) => {
+
+    const coincideBusqueda =
+      (evento.titulo || "").toLowerCase().includes(busqueda.toLowerCase()) ||
+      (evento.ciudad || "").toLowerCase().includes(busqueda.toLowerCase()) ||
+      (evento.categoria || "").toLowerCase().includes(busqueda.toLowerCase());
+
+    const coincideCategoria =
+      categoriaSeleccionada === "Todos" ||
+      evento.categoria === categoriaSeleccionada;
+
+    return coincideBusqueda && coincideCategoria;
+
+  });
+
+  // -------- EVENTOS ESTE FIN DE SEMANA --------
+
+  const hoy = new Date();
+  const dia = hoy.getDay();
+
+  const diasHastaSabado = (6 - dia + 7) % 7;
+  const sabado = new Date(hoy);
+  sabado.setDate(hoy.getDate() + diasHastaSabado);
+
+  const domingo = new Date(sabado);
+  domingo.setDate(sabado.getDate() + 1);
+
+  const eventosFinDeSemana = eventosFiltrados.filter((evento) => {
+
+    if (!evento.fechas) return false;
+
+    return evento.fechas.some((fecha) => {
+      const fechaEvento = new Date(fecha);
+      return fechaEvento >= sabado && fechaEvento <= domingo;
+    });
+
+  });
+
+  const eventoDestacado = eventosFiltrados[0];
+  const otrosEventos = eventosFiltrados.slice(1);
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="p-6">
 
-      {/* HERO SECTION */}
-      <section className="text-center py-20 px-6 bg-gradient-to-br from-orange-500 to-orange-600 text-white">
-        <h1 className="text-5xl md:text-6xl font-bold mb-6">
-          Descubrí qué hacer este finde
-        </h1>
+      <h1 className="text-3xl font-bold mb-4">Eventos disponibles</h1>
 
-        <p className="text-lg md:text-xl max-w-2xl mx-auto mb-10 opacity-90">
-          MiFinde es la agenda digital donde encontrás fiestas, festivales,
-          conciertos y eventos en tu ciudad.
-        </p>
+      {/* BUSCADOR */}
 
-        <div className="flex justify-center gap-4 flex-wrap">
-          <Link
-            to="/eventos"
-            className="bg-white text-orange-600 font-semibold px-6 py-3 rounded-full shadow-lg hover:scale-105 transition"
+      <input
+        type="text"
+        placeholder="🔎 Buscar eventos, ciudades o categorías"
+        value={busqueda}
+        onChange={(e) => setBusqueda(e.target.value)}
+        className="w-full p-2 border rounded mb-4"
+      />
+
+      {/* CATEGORÍAS */}
+
+      <div className="flex flex-wrap gap-2 mb-6">
+        {categorias.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setCategoriaSeleccionada(cat)}
+            className={`px-3 py-1 rounded-full border ${
+              categoriaSeleccionada === cat
+                ? "bg-orange-500 text-white"
+                : "bg-white"
+            }`}
           >
-            Explorar Eventos
-          </Link>
+            {cat}
+          </button>
+        ))}
+      </div>
 
-          <Link
-            to="/crear"
-            className="border border-white px-6 py-3 rounded-full hover:bg-white hover:text-orange-600 transition"
+      {/* EVENTOS ESTE FIN DE SEMANA */}
+
+      {eventosFinDeSemana.length > 0 && (
+        <div className="mb-10">
+
+          <h2 className="text-2xl font-bold mb-4">
+            📅 Este fin de semana
+          </h2>
+
+          <div className="grid gap-4">
+
+            {eventosFinDeSemana.map((evento) => (
+              <Link key={evento.id} to={`/evento/${evento.id}`}>
+                <div className="border p-4 rounded-lg shadow bg-orange-50 hover:shadow-lg cursor-pointer">
+
+                  {evento.imagen && (
+                    <img
+                      src={evento.imagen}
+                      alt={evento.titulo}
+                      className="w-full h-40 object-cover rounded mb-3"
+                    />
+                  )}
+
+                  <h3 className="text-lg font-semibold">
+                    {evento.titulo}
+                  </h3>
+
+                  <p>
+                    📍 {evento.ciudad || "Ciudad no especificada"}, {evento.provincia || ""}
+                  </p>
+
+                  <p>🏷️ {evento.categoria}</p>
+
+                </div>
+              </Link>
+            ))}
+
+          </div>
+
+        </div>
+      )}
+
+      {/* EVENTO DESTACADO */}
+
+      {eventoDestacado && (
+        <Link to={`/evento/${eventoDestacado.id}`}>
+          <div
+            className="relative rounded-xl mb-8 shadow overflow-hidden min-h-[320px] cursor-pointer"
+            style={{
+              backgroundImage: eventoDestacado.imagen
+                ? `url(${eventoDestacado.imagen})`
+                : "none",
+              backgroundSize: "cover",
+              backgroundPosition: "center"
+            }}
           >
-            Publicar Evento
+
+            <div className="bg-black/60 p-6 text-white h-full flex flex-col justify-end">
+
+              <h2 className="text-2xl font-bold mb-2">
+                ⭐ Evento destacado
+              </h2>
+
+              <h3 className="text-xl font-semibold">
+                {eventoDestacado.titulo}
+              </h3>
+
+              <p>
+                📍 {eventoDestacado.ciudad || "Ciudad no especificada"}, {eventoDestacado.provincia || ""}
+              </p>
+
+              <p>🏷️ {eventoDestacado.categoria}</p>
+
+            </div>
+
+          </div>
+        </Link>
+      )}
+
+      {/* OTROS EVENTOS */}
+
+      <div className="grid gap-4">
+
+        {otrosEventos.map((evento) => (
+          <Link key={evento.id} to={`/evento/${evento.id}`}>
+            <div className="border p-4 rounded-lg shadow hover:shadow-lg transition cursor-pointer">
+
+              {evento.imagen && (
+                <img
+                  src={evento.imagen}
+                  alt={evento.titulo}
+                  className="w-full h-48 object-cover rounded mb-3"
+                />
+              )}
+
+              <h2 className="text-xl font-semibold">
+                {evento.titulo}
+              </h2>
+
+              <p>
+                📍 {evento.ciudad || "Ciudad no especificada"}, {evento.provincia || ""}
+              </p>
+
+              <p>🏷️ {evento.categoria}</p>
+
+              <p className="mt-2">{evento.descripcion}</p>
+
+            </div>
           </Link>
-        </div>
-      </section>
+        ))}
 
-      {/* BENEFICIOS */}
-      <section className="py-16 px-6 max-w-6xl mx-auto grid md:grid-cols-3 gap-10 text-center">
-        
-        <div className="bg-white p-8 rounded-2xl shadow-md hover:shadow-lg transition">
-          <div className="text-4xl mb-4">📍</div>
-          <h3 className="text-xl font-semibold mb-3">Eventos cerca tuyo</h3>
-          <p className="text-gray-600">
-            Encontrá actividades en tu ciudad y organizá tu fin de semana en minutos.
-          </p>
-        </div>
-
-        <div className="bg-white p-8 rounded-2xl shadow-md hover:shadow-lg transition">
-          <div className="text-4xl mb-4">🚀</div>
-          <h3 className="text-xl font-semibold mb-3">Difusión para organizadores</h3>
-          <p className="text-gray-600">
-            Publicá tu evento y llegá a más personas en una plataforma dedicada.
-          </p>
-        </div>
-
-        <div className="bg-white p-8 rounded-2xl shadow-md hover:shadow-lg transition">
-          <div className="text-4xl mb-4">⭐</div>
-          <h3 className="text-xl font-semibold mb-3">Eventos destacados</h3>
-          <p className="text-gray-600">
-            Promocioná tu evento y aparecé primero en la agenda regional.
-          </p>
-        </div>
-
-      </section>
+      </div>
 
     </div>
-  )
+  );
 }
+
+export default Home;

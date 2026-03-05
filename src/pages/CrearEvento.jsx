@@ -10,12 +10,14 @@ export default function CrearEvento() {
   const navigate = useNavigate()
 
   const [titulo, setTitulo] = useState("")
+  const [provincia, setProvincia] = useState("")
+  const [ciudad, setCiudad] = useState("")
   const [lugar, setLugar] = useState("")
   const [categoria, setCategoria] = useState("")
   const [descripcion, setDescripcion] = useState("")
   const [fechas, setFechas] = useState([])
   const [fechaInput, setFechaInput] = useState("")
-  const [imagen, setImagen] = useState(null)
+  const [imagen, setImagen] = useState("")
 
   const agregarFecha = () => {
     if (fechaInput && !fechas.includes(fechaInput)) {
@@ -27,19 +29,22 @@ export default function CrearEvento() {
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    if (!titulo || !lugar || !categoria || fechas.length === 0) {
+    if (!titulo || !provincia || !ciudad || !categoria || fechas.length === 0) {
       alert("Completá todos los campos obligatorios")
       return
     }
 
     agregarEvento({
       titulo,
+      provincia,
+      ciudad,
       lugar,
       categoria,
       descripcion,
       fechas,
       imagen,
-      creador: usuario.nombre
+      creador: usuario.nombre,
+      estado: "pendiente"
     })
 
     navigate("/eventos")
@@ -57,6 +62,51 @@ export default function CrearEvento() {
             type="text"
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
+            style={{ width: "100%", marginBottom: "10px" }}
+          />
+        </div>
+
+        <div>
+          <label>Provincia:</label>
+          <select
+            value={provincia}
+            onChange={(e) => setProvincia(e.target.value)}
+            style={{ width: "100%", marginBottom: "10px" }}
+          >
+            <option value="">Seleccionar provincia</option>
+            <option value="Buenos Aires">Buenos Aires</option>
+            <option value="Catamarca">Catamarca</option>
+            <option value="Chaco">Chaco</option>
+            <option value="Chubut">Chubut</option>
+            <option value="Córdoba">Córdoba</option>
+            <option value="Corrientes">Corrientes</option>
+            <option value="Entre Ríos">Entre Ríos</option>
+            <option value="Formosa">Formosa</option>
+            <option value="Jujuy">Jujuy</option>
+            <option value="La Pampa">La Pampa</option>
+            <option value="La Rioja">La Rioja</option>
+            <option value="Mendoza">Mendoza</option>
+            <option value="Misiones">Misiones</option>
+            <option value="Neuquén">Neuquén</option>
+            <option value="Río Negro">Río Negro</option>
+            <option value="Salta">Salta</option>
+            <option value="San Juan">San Juan</option>
+            <option value="San Luis">San Luis</option>
+            <option value="Santa Cruz">Santa Cruz</option>
+            <option value="Santa Fe">Santa Fe</option>
+            <option value="Santiago del Estero">Santiago del Estero</option>
+            <option value="Tierra del Fuego">Tierra del Fuego</option>
+            <option value="Tucumán">Tucumán</option>
+            <option value="CABA">Ciudad Autónoma de Buenos Aires</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Ciudad:</label>
+          <input
+            type="text"
+            value={ciudad}
+            onChange={(e) => setCiudad(e.target.value)}
             style={{ width: "100%", marginBottom: "10px" }}
           />
         </div>
@@ -80,11 +130,13 @@ export default function CrearEvento() {
           >
             <option value="">Seleccionar categoría</option>
             <option value="Fiesta">Fiesta</option>
-            <option value="Festival">Festival</option>
-            <option value="Concierto">Concierto</option>
-            <option value="Gastronómico">Gastronómico</option>
+            <option value="Música">Música</option>
+            <option value="Gastronomía">Gastronomía</option>
             <option value="Tradicionalista">Tradicionalista</option>
-            <option value="Deportivo">Deportivo</option>
+            <option value="Deportes">Deportes</option>
+            <option value="Cultura">Cultura</option>
+            <option value="Motor">Motor</option>
+            <option value="Familiar">Familiar</option>
           </select>
         </div>
 
@@ -119,12 +171,13 @@ export default function CrearEvento() {
         </div>
 
         <div>
-          <label>Imagen del evento:</label>
+          <label>Imagen del evento (URL):</label>
           <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setImagen(e.target.files[0])}
-            style={{ marginBottom: "15px" }}
+            type="text"
+            value={imagen}
+            onChange={(e) => setImagen(e.target.value)}
+            placeholder="https://ejemplo.com/imagen.jpg"
+            style={{ width: "100%", marginBottom: "15px" }}
           />
         </div>
 
