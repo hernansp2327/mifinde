@@ -7,12 +7,19 @@ export function EventosProvider({ children }) {
 
   const [eventos, setEventos] = useState(() => {
     const guardados = localStorage.getItem("eventos")
+
     if (guardados) {
-      return JSON.parse(guardados)
+      return JSON.parse(guardados).map(e => ({
+        ...e,
+        id: Number(e.id),
+        destacado: e.destacado || false,
+        estado: e.estado || "aprobado"
+      }))
     }
 
     return eventosMock.map(e => ({
       ...e,
+      id: Number(e.id),
       destacado: e.destacado || false,
       estado: e.estado || "aprobado"
     }))
@@ -24,9 +31,11 @@ export function EventosProvider({ children }) {
 
   const agregarEvento = (nuevoEvento) => {
     setEventos(prev => {
-      const nuevoId = prev.length > 0
-        ? Math.max(...prev.map(e => Number(e.id))) + 1
-        : 1
+      const maxId = prev.length > 0
+        ? Math.max(...prev.map(e => Number(e.id)))
+        : 0
+
+      const nuevoId = maxId + 1
 
       return [
         ...prev,
@@ -41,13 +50,17 @@ export function EventosProvider({ children }) {
   }
 
   const deleteEvent = (id) => {
-    setEventos(prev => prev.filter(e => e.id !== id))
+    setEventos(prev =>
+      prev.filter(e => Number(e.id) !== Number(id))
+    )
   }
 
   const toggleFeatured = (id) => {
     setEventos(prev =>
       prev.map(e =>
-        e.id === id ? { ...e, destacado: !e.destacado } : e
+        Number(e.id) === Number(id)
+          ? { ...e, destacado: !e.destacado }
+          : e
       )
     )
   }
@@ -55,7 +68,9 @@ export function EventosProvider({ children }) {
   const approveEvent = (id) => {
     setEventos(prev =>
       prev.map(e =>
-        e.id === id ? { ...e, estado: "aprobado" } : e
+        Number(e.id) === Number(id)
+          ? { ...e, estado: "aprobado" }
+          : e
       )
     )
   }
@@ -63,7 +78,9 @@ export function EventosProvider({ children }) {
   const rejectEvent = (id) => {
     setEventos(prev =>
       prev.map(e =>
-        e.id === id ? { ...e, estado: "rechazado" } : e
+        Number(e.id) === Number(id)
+          ? { ...e, estado: "rechazado" }
+          : e
       )
     )
   }

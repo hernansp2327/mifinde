@@ -15,6 +15,7 @@ export default function CrearEvento() {
   const [descripcion, setDescripcion] = useState("")
   const [fechas, setFechas] = useState([])
   const [fechaInput, setFechaInput] = useState("")
+  const [imagen, setImagen] = useState(null)
 
   const agregarFecha = () => {
     if (fechaInput && !fechas.includes(fechaInput)) {
@@ -37,6 +38,7 @@ export default function CrearEvento() {
       categoria,
       descripcion,
       fechas,
+      imagen,
       creador: usuario.nombre
     })
 
@@ -113,6 +115,16 @@ export default function CrearEvento() {
             onChange={(e) => setDescripcion(e.target.value)}
             rows="4"
             style={{ width: "100%", marginBottom: "15px" }}
+          />
+        </div>
+
+        <div>
+          <label>Imagen del evento:</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImagen(e.target.files[0])}
+            style={{ marginBottom: "15px" }}
           />
         </div>
 

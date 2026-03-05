@@ -25,76 +25,64 @@ function AppContent() {
 
   return (
     <BrowserRouter>
-      <div style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        fontFamily: "Arial"
-      }}>
+      <div className="min-h-screen flex flex-col bg-gray-50">
 
-        <nav style={{
-          background: "#ff7a00",
-          padding: "20px 30px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center"
-        }}>
-          
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <img 
-              src={logo} 
-              alt="MiFinde Logo" 
-              style={{ height: "60px", marginRight: "15px" }} 
-            />
-            <h1 style={{ color: "white", margin: 0 }}>MiFinde</h1>
-          </div>
+        {/* NAVBAR MODERNA */}
+        <nav className="bg-white shadow-md border-b">
+          <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
 
-          <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
-            <Link to="/" style={{ color: "white", textDecoration: "none" }}>
-              Inicio
+            <Link to="/" className="flex items-center gap-3">
+              <img src={logo} alt="MiFinde Logo" className="h-10" />
+              <span className="text-2xl font-bold text-orange-500">
+                MiFinde
+              </span>
             </Link>
 
-            <Link to="/eventos" style={{ color: "white", textDecoration: "none" }}>
-              Eventos
-            </Link>
+            <div className="flex items-center gap-6 text-sm font-medium">
 
-            {puedeCrearEvento && (
-              <Link 
-                to="/crear-evento"
-                style={{ color: "white", textDecoration: "none" }}
-              >
-                Crear Evento
+              <Link to="/" className="text-gray-700 hover:text-orange-500 transition">
+                Inicio
               </Link>
-            )}
 
-            <Link 
-              to="/mis-eventos" 
-              style={{ 
-                color: "white", 
-                textDecoration: "none",
-                fontWeight: "bold"
-              }}
-            >
-              ❤️ {favoritos.length}
-            </Link>
-
-            {usuario.rol === "admin" && (
-              <Link 
-                to="/admin"
-                style={{ color: "white", textDecoration: "none" }}
-              >
-                Admin
+              <Link to="/eventos" className="text-gray-700 hover:text-orange-500 transition">
+                Eventos
               </Link>
-            )}
 
-            <span style={{ color: "white", fontSize: "14px" }}>
-              {usuario.nombre} ({usuario.rol})
-            </span>
+              {puedeCrearEvento && (
+                <Link 
+                  to="/crear-evento"
+                  className="text-gray-700 hover:text-orange-500 transition"
+                >
+                  Crear Evento
+                </Link>
+              )}
+
+              <Link 
+                to="/mis-eventos"
+                className="flex items-center gap-1 text-gray-700 hover:text-orange-500 transition"
+              >
+                ❤️ {favoritos.length}
+              </Link>
+
+              {usuario.rol === "admin" && (
+                <Link 
+                  to="/admin"
+                  className="text-gray-700 hover:text-orange-500 transition"
+                >
+                  Admin
+                </Link>
+              )}
+
+              <div className="text-xs text-gray-500 border-l pl-4">
+                {usuario.nombre} ({usuario.rol})
+              </div>
+
+            </div>
           </div>
-
         </nav>
 
-        <div style={{ padding: "40px", flex: 1 }}>
+        {/* CONTENIDO */}
+        <div className="flex-1 px-6 py-10 max-w-6xl mx-auto w-full">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/eventos" element={<Eventos />} />
