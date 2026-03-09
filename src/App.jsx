@@ -1,5 +1,5 @@
 import logo from "./assets/logo.png"
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom"
+import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom"
 import { useContext } from "react"
 
 import { FavoritosContext, FavoritosProvider } from "./context/FavoritosContext"
@@ -14,20 +14,34 @@ import EventoDetalle from "./pages/EventoDetalle"
 import MisEventos from "./pages/MisEventos"
 import CrearEvento from "./pages/CrearEvento"
 import Admin from "./pages/Admin"
+import Login from "./pages/Login"
 
 function AppContent() {
 
   const { favoritos } = useContext(FavoritosContext)
   const { usuario } = useContext(UserContext)
 
+  // Si no hay usuario, mandarlo al login
+  if (!usuario) {
+    return (
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
+      </BrowserRouter>
+    )
+  }
+
   const puedeCrearEvento =
     usuario.rol === "admin" || usuario.rol === "organizador"
 
   return (
     <BrowserRouter>
+
       <div className="min-h-screen flex flex-col bg-gray-50">
 
-        {/* NAVBAR MODERNA */}
+        {/* NAVBAR */}
         <nav className="bg-white shadow-md border-b">
           <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
 
@@ -49,7 +63,7 @@ function AppContent() {
               </Link>
 
               {puedeCrearEvento && (
-                <Link 
+                <Link
                   to="/crear-evento"
                   className="text-gray-700 hover:text-orange-500 transition"
                 >
@@ -57,7 +71,7 @@ function AppContent() {
                 </Link>
               )}
 
-              <Link 
+              <Link
                 to="/mis-eventos"
                 className="flex items-center gap-1 text-gray-700 hover:text-orange-500 transition"
               >
@@ -65,7 +79,7 @@ function AppContent() {
               </Link>
 
               {usuario.rol === "admin" && (
-                <Link 
+                <Link
                   to="/admin"
                   className="text-gray-700 hover:text-orange-500 transition"
                 >
@@ -83,10 +97,15 @@ function AppContent() {
 
         {/* CONTENIDO */}
         <div className="flex-1 px-6 py-10 max-w-6xl mx-auto w-full">
+
           <Routes>
+
             <Route path="/" element={<Home />} />
+
             <Route path="/eventos" element={<Eventos />} />
+
             <Route path="/eventos/:id" element={<EventoDetalle />} />
+
             <Route path="/mis-eventos" element={<MisEventos />} />
 
             <Route
@@ -94,7 +113,7 @@ function AppContent() {
               element={
                 puedeCrearEvento
                   ? <CrearEvento />
-                  : <Home />
+                  : <Navigate to="/" />
               }
             />
 
@@ -106,10 +125,15 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
+
+            <Route path="/login" element={<Login />} />
+
           </Routes>
+
         </div>
 
       </div>
+
     </BrowserRouter>
   )
 }

@@ -112,7 +112,7 @@ function Home() {
           <div className="grid gap-4">
 
             {eventosFinDeSemana.map((evento) => (
-              <Link key={evento.id} to={`/evento/${evento.id}`}>
+              <Link key={evento.id} to={`/eventos/${evento.id}`}>
                 <div className="border p-4 rounded-lg shadow bg-orange-50 hover:shadow-lg cursor-pointer">
 
                   {evento.imagen && (
@@ -126,6 +126,12 @@ function Home() {
                   <h3 className="text-lg font-semibold">
                     {evento.titulo}
                   </h3>
+
+                  <p>
+                    📅 {evento.fechas?.[0]
+                      ? new Date(evento.fechas[0]).toLocaleDateString("es-AR")
+                      : "Fecha a confirmar"}
+                  </p>
 
                   <p>
                     📍 {evento.ciudad || "Ciudad no especificada"}, {evento.provincia || ""}
@@ -145,7 +151,7 @@ function Home() {
       {/* EVENTO DESTACADO */}
 
       {eventoDestacado && (
-        <Link to={`/evento/${eventoDestacado.id}`}>
+        <Link to={`/eventos/${eventoDestacado.id}`}>
           <div
             className="relative rounded-xl mb-8 shadow overflow-hidden min-h-[320px] cursor-pointer"
             style={{
@@ -168,6 +174,12 @@ function Home() {
               </h3>
 
               <p>
+                📅 {eventoDestacado.fechas?.[0]
+                  ? new Date(eventoDestacado.fechas[0]).toLocaleDateString("es-AR")
+                  : "Fecha a confirmar"}
+              </p>
+
+              <p>
                 📍 {eventoDestacado.ciudad || "Ciudad no especificada"}, {eventoDestacado.provincia || ""}
               </p>
 
@@ -184,7 +196,7 @@ function Home() {
       <div className="grid gap-4">
 
         {otrosEventos.map((evento) => (
-          <Link key={evento.id} to={`/evento/${evento.id}`}>
+          <Link key={evento.id} to={`/eventos/${evento.id}`}>
             <div className="border p-4 rounded-lg shadow hover:shadow-lg transition cursor-pointer">
 
               {evento.imagen && (
@@ -198,6 +210,12 @@ function Home() {
               <h2 className="text-xl font-semibold">
                 {evento.titulo}
               </h2>
+
+              <p>
+                📅 {evento.fechas?.[0]
+                  ? new Date(evento.fechas[0]).toLocaleDateString("es-AR")
+                  : "Fecha a confirmar"}
+              </p>
 
               <p>
                 📍 {evento.ciudad || "Ciudad no especificada"}, {evento.provincia || ""}
