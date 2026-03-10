@@ -41,7 +41,21 @@ function Home() {
 
   });
 
-  // -------- EVENTOS ESTE FIN DE SEMANA --------
+  // EVENTO DESTACADO
+
+  const eventoDestacado = eventosFiltrados.find(e => e.destacado);
+
+  // EVENTOS POPULARES (simulado)
+
+  const eventosPopulares = [...eventosFiltrados]
+    .sort((a, b) => (b.destacado ? 1 : 0) - (a.destacado ? 1 : 0))
+    .slice(0, 4);
+
+  const otrosEventos = eventosFiltrados.filter(
+    e => e.id !== eventoDestacado?.id
+  );
+
+  // EVENTOS ESTE FIN DE SEMANA
 
   const hoy = new Date();
   const dia = hoy.getDay();
@@ -63,9 +77,6 @@ function Home() {
     });
 
   });
-
-  const eventoDestacado = eventosFiltrados[0];
-  const otrosEventos = eventosFiltrados.slice(1);
 
   return (
     <div className="p-6">
@@ -100,60 +111,12 @@ function Home() {
         ))}
       </div>
 
-      {/* EVENTOS ESTE FIN DE SEMANA */}
-
-      {eventosFinDeSemana.length > 0 && (
-        <div className="mb-10">
-
-          <h2 className="text-2xl font-bold mb-4">
-            📅 Este fin de semana
-          </h2>
-
-          <div className="grid gap-4">
-
-            {eventosFinDeSemana.map((evento) => (
-              <Link key={evento.id} to={`/eventos/${evento.id}`}>
-                <div className="border p-4 rounded-lg shadow bg-orange-50 hover:shadow-lg cursor-pointer">
-
-                  {evento.imagen && (
-                    <img
-                      src={evento.imagen}
-                      alt={evento.titulo}
-                      className="w-full h-40 object-cover rounded mb-3"
-                    />
-                  )}
-
-                  <h3 className="text-lg font-semibold">
-                    {evento.titulo}
-                  </h3>
-
-                  <p>
-                    📅 {evento.fechas?.[0]
-                      ? new Date(evento.fechas[0]).toLocaleDateString("es-AR")
-                      : "Fecha a confirmar"}
-                  </p>
-
-                  <p>
-                    📍 {evento.ciudad || "Ciudad no especificada"}, {evento.provincia || ""}
-                  </p>
-
-                  <p>🏷️ {evento.categoria}</p>
-
-                </div>
-              </Link>
-            ))}
-
-          </div>
-
-        </div>
-      )}
-
       {/* EVENTO DESTACADO */}
 
       {eventoDestacado && (
         <Link to={`/eventos/${eventoDestacado.id}`}>
           <div
-            className="relative rounded-xl mb-8 shadow overflow-hidden min-h-[320px] cursor-pointer"
+            className="relative rounded-xl mb-10 shadow overflow-hidden min-h-[320px]"
             style={{
               backgroundImage: eventoDestacado.imagen
                 ? `url(${eventoDestacado.imagen})`
@@ -180,10 +143,8 @@ function Home() {
               </p>
 
               <p>
-                📍 {eventoDestacado.ciudad || "Ciudad no especificada"}, {eventoDestacado.provincia || ""}
+                📍 {eventoDestacado.ciudad}, {eventoDestacado.provincia}
               </p>
-
-              <p>🏷️ {eventoDestacado.categoria}</p>
 
             </div>
 
@@ -191,13 +152,107 @@ function Home() {
         </Link>
       )}
 
+      {/* EVENTOS POPULARES */}
+
+      <h2 className="text-2xl font-bold mb-4">
+        🔥 Eventos populares
+      </h2>
+
+      <div className="grid gap-4 mb-10">
+
+        {eventosPopulares.map((evento) => (
+
+          <Link key={evento.id} to={`/eventos/${evento.id}`}>
+
+            <div className="border p-4 rounded-lg shadow hover:shadow-lg">
+
+              {evento.imagen && (
+                <img
+                  src={evento.imagen}
+                  alt={evento.titulo}
+                  className="w-full h-40 object-cover rounded mb-3"
+                />
+              )}
+
+              <h3 className="text-lg font-semibold">
+                {evento.titulo}
+              </h3>
+
+              <p>
+                📅 {evento.fechas?.[0]
+                  ? new Date(evento.fechas[0]).toLocaleDateString("es-AR")
+                  : "Fecha a confirmar"}
+              </p>
+
+              <p>
+                📍 {evento.ciudad}, {evento.provincia}
+              </p>
+
+            </div>
+
+          </Link>
+
+        ))}
+
+      </div>
+
+      {/* EVENTOS ESTE FIN DE SEMANA */}
+
+      {eventosFinDeSemana.length > 0 && (
+        <div className="mb-10">
+
+          <h2 className="text-2xl font-bold mb-4">
+            📅 Este fin de semana
+          </h2>
+
+          <div className="grid gap-4">
+
+            {eventosFinDeSemana.map((evento) => (
+              <Link key={evento.id} to={`/eventos/${evento.id}`}>
+                <div className="border p-4 rounded-lg shadow bg-orange-50 hover:shadow-lg">
+
+                  {evento.imagen && (
+                    <img
+                      src={evento.imagen}
+                      alt={evento.titulo}
+                      className="w-full h-40 object-cover rounded mb-3"
+                    />
+                  )}
+
+                  <h3 className="text-lg font-semibold">
+                    {evento.titulo}
+                  </h3>
+
+                  <p>
+                    📅 {evento.fechas?.[0]
+                      ? new Date(evento.fechas[0]).toLocaleDateString("es-AR")
+                      : "Fecha a confirmar"}
+                  </p>
+
+                  <p>
+                    📍 {evento.ciudad}, {evento.provincia}
+                  </p>
+
+                </div>
+              </Link>
+            ))}
+
+          </div>
+
+        </div>
+      )}
+
       {/* OTROS EVENTOS */}
+
+      <h2 className="text-2xl font-bold mb-4">
+        🎉 Otros eventos
+      </h2>
 
       <div className="grid gap-4">
 
         {otrosEventos.map((evento) => (
           <Link key={evento.id} to={`/eventos/${evento.id}`}>
-            <div className="border p-4 rounded-lg shadow hover:shadow-lg transition cursor-pointer">
+            <div className="border p-4 rounded-lg shadow hover:shadow-lg">
 
               {evento.imagen && (
                 <img
@@ -218,10 +273,8 @@ function Home() {
               </p>
 
               <p>
-                📍 {evento.ciudad || "Ciudad no especificada"}, {evento.provincia || ""}
+                📍 {evento.ciudad}, {evento.provincia}
               </p>
-
-              <p>🏷️ {evento.categoria}</p>
 
               <p className="mt-2">{evento.descripcion}</p>
 

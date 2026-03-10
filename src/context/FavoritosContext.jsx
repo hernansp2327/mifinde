@@ -1,34 +1,36 @@
-import { createContext, useState } from "react"
+import { createContext, useState, useEffect } from "react";
 
-export const FavoritosContext = createContext()
+export const FavoritosContext = createContext();
 
 export function FavoritosProvider({ children }) {
 
   const [favoritos, setFavoritos] = useState(() => {
-    const guardados = localStorage.getItem("favoritos")
-    return guardados ? JSON.parse(guardados).map(Number) : []
-  })
+    const guardados = localStorage.getItem("favoritos");
+    return guardados ? JSON.parse(guardados) : [];
+  });
 
-  const toggleFavorito = (eventoId) => {
-    const id = Number(eventoId)
+  useEffect(() => {
+    localStorage.setItem("favoritos", JSON.stringify(favoritos));
+  }, [favoritos]);
+
+  const toggleFavorito = (id) => {
+
+    const idNumero = Number(id);
 
     setFavoritos(prev => {
-      let nuevos
 
-      if (prev.includes(id)) {
-        nuevos = prev.filter(favId => favId !== id)
-      } else {
-        nuevos = [...prev, id]
+      if (prev.includes(idNumero)) {
+        return prev.filter(f => f !== idNumero);
       }
 
-      localStorage.setItem("favoritos", JSON.stringify(nuevos))
-      return nuevos
-    })
-  }
+      return [...prev, idNumero];
+    });
+
+  };
 
   return (
     <FavoritosContext.Provider value={{ favoritos, toggleFavorito }}>
       {children}
     </FavoritosContext.Provider>
-  )
+  );
 }

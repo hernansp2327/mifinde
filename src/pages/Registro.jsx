@@ -2,22 +2,27 @@ import { useState, useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import { UserContext } from "../context/UserContext"
 
-export default function Login() {
+export default function Registro() {
 
   const { setUsuario } = useContext(UserContext)
   const navigate = useNavigate()
 
+  const [nombre, setNombre] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
-  const handleLogin = (e) => {
+  const handleRegistro = (e) => {
     e.preventDefault()
 
-    // login simple por ahora
     const nuevoUsuario = {
-      nombre: email,
+      nombre: nombre,
+      email: email,
       rol: "user"
     }
+
+    console.log("Usuario creado:", nuevoUsuario)
+
+    localStorage.setItem("usuario", JSON.stringify(nuevoUsuario))
 
     setUsuario(nuevoUsuario)
 
@@ -30,10 +35,19 @@ export default function Login() {
       <div className="bg-white shadow-lg rounded-xl p-8 w-96">
 
         <h2 className="text-2xl font-bold mb-6 text-center">
-          Iniciar sesión
+          Crear cuenta
         </h2>
 
-        <form onSubmit={handleLogin} className="flex flex-col gap-4">
+        <form onSubmit={handleRegistro} className="flex flex-col gap-4">
+
+          <input
+            type="text"
+            placeholder="Nombre"
+            className="border rounded-lg p-3"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            required
+          />
 
           <input
             type="email"
@@ -57,21 +71,10 @@ export default function Login() {
             type="submit"
             className="bg-orange-500 text-white p-3 rounded-lg hover:bg-orange-600"
           >
-            Iniciar sesión
+            Crear cuenta
           </button>
 
         </form>
-
-        <p className="text-center text-sm mt-4 text-gray-600">
-          ¿No tenés cuenta?
-        </p>
-
-        <button
-          onClick={() => navigate("/registro")}
-          className="w-full mt-2 border border-orange-500 text-orange-500 p-3 rounded-lg hover:bg-orange-50"
-        >
-          Crear cuenta
-        </button>
 
       </div>
 

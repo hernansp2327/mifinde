@@ -6,7 +6,13 @@ export default function ProtectedRoute({ children, requiredRole }) {
 
   const { usuario } = useContext(UserContext)
 
-  if (!usuario || usuario.rol !== requiredRole) {
+  // si no hay usuario → ir al login
+  if (!usuario) {
+    return <Navigate to="/login" replace />
+  }
+
+  // si la ruta requiere rol específico
+  if (requiredRole && usuario.rol !== requiredRole) {
     return <Navigate to="/" replace />
   }
 

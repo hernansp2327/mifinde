@@ -4,18 +4,44 @@ export const UserContext = createContext()
 
 export function UserProvider({ children }) {
 
-  // Simulamos usuario logueado
-  const [usuario, setUsuario] = useState({
-    nombre: "Hernán",
-    rol: "admin" // cambiar a "usuario" para probar
+  const [usuario, setUsuario] = useState(() => {
+    const guardado = localStorage.getItem("usuario")
+    return guardado ? JSON.parse(guardado) : null
   })
 
   const cambiarRol = (nuevoRol) => {
-    setUsuario(prev => ({ ...prev, rol: nuevoRol }))
+
+    const actualizado = { ...usuario, rol: nuevoRol }
+
+    setUsuario(actualizado)
+
+    localStorage.setItem("usuario", JSON.stringify(actualizado))
+  }
+
+  const solicitarOrganizador = () => {
+
+    const actualizado = { ...usuario, solicitudOrganizador: true }
+
+    setUsuario(actualizado)
+
+    localStorage.setItem("usuario", JSON.stringify(actualizado))
+  }
+
+  const logout = () => {
+
+    setUsuario(null)
+
+    localStorage.removeItem("usuario")
   }
 
   return (
-    <UserContext.Provider value={{ usuario, cambiarRol }}>
+    <UserContext.Provider value={{
+      usuario,
+      setUsuario,
+      cambiarRol,
+      solicitarOrganizador,
+      logout
+    }}>
       {children}
     </UserContext.Provider>
   )

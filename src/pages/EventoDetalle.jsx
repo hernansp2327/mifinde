@@ -1,14 +1,17 @@
 import { useParams } from "react-router-dom"
 import { useContext } from "react"
 import { EventosContext } from "../context/EventosContext"
+import { FavoritosContext } from "../context/FavoritosContext"
 
 export default function EventoDetalle() {
 
   const { id } = useParams()
+
   const { eventos } = useContext(EventosContext)
+  const { favoritos, toggleFavorito } = useContext(FavoritosContext)
 
   // primero intenta buscar por ID
-  let evento = eventos.find(e => String(e.id) === String(id))
+  let evento = eventos.find(e => Number(e.id) === Number(id))
 
   // si no encuentra, intenta por posición
   if (!evento) {
@@ -23,6 +26,10 @@ export default function EventoDetalle() {
       </div>
     )
   }
+
+  const eventoId = Number(evento.id)
+
+  const esFavorito = favoritos.includes(eventoId)
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
@@ -50,6 +57,21 @@ export default function EventoDetalle() {
       <p className="mb-4">
         📌 {evento.lugar}
       </p>
+
+      {/* BOTON FAVORITOS */}
+
+      <button
+        onClick={() => toggleFavorito(eventoId)}
+        className={`px-4 py-2 rounded mb-6 ${
+          esFavorito
+            ? "bg-red-500 text-white"
+            : "bg-gray-200"
+        }`}
+      >
+        {esFavorito
+          ? "❤️ Quitar de favoritos"
+          : "🤍 Guardar en favoritos"}
+      </button>
 
       <div className="mb-6">
 
