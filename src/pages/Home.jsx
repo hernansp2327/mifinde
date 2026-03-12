@@ -81,7 +81,7 @@ function Home() {
   return (
     <div className="p-6">
 
-      <h1 className="text-3xl font-bold mb-4">Eventos disponibles</h1>
+      <h1 className="text-4xl font-black mb-6">Eventos disponibles</h1>
 
       {/* BUSCADOR */}
 
@@ -90,12 +90,12 @@ function Home() {
         placeholder="🔎 Buscar eventos, ciudades o categorías"
         value={busqueda}
         onChange={(e) => setBusqueda(e.target.value)}
-        className="w-full p-2 border rounded mb-4"
+        className="w-full p-4 border rounded-lg shadow-sm mb-4"
       />
 
       {/* CATEGORÍAS */}
 
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="flex flex-wrap gap-4 mb-6">
         {categorias.map((cat) => (
           <button
             key={cat}
@@ -116,7 +116,7 @@ function Home() {
       {eventoDestacado && (
         <Link to={`/eventos/${eventoDestacado.id}`}>
           <div
-            className="relative rounded-xl mb-10 shadow overflow-hidden min-h-[320px]"
+            className="relative rounded-lg mb-10 shadow overflow-hidden min-h-[320px]"
             style={{
               backgroundImage: eventoDestacado.imagen
                 ? `url(${eventoDestacado.imagen})`
@@ -127,6 +127,12 @@ function Home() {
           >
 
             <div className="bg-black/60 p-6 text-white h-full flex flex-col justify-end">
+
+              <img
+                src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30"
+                alt="Evento destacado"
+                className="w-full rounded-lg mb-4"
+              />
 
               <h2 className="text-2xl font-bold mb-2">
                 ⭐ Evento destacado

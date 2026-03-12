@@ -50,6 +50,12 @@ function Eventos() {
               />
             )}
 
+            <img
+              src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4"
+              alt={evento.titulo}
+              className="w-full h-32 object-cover rounded-md mb-3"
+            />
+
             <h3>{evento.titulo}</h3>
 
             <p>📍 {evento.lugar}</p>
