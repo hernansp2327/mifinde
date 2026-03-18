@@ -15,12 +15,12 @@ export default function Registro() {
     e.preventDefault()
 
     const nuevoUsuario = {
-      nombre: nombre,
-      email: email,
-      rol: "user"
+      nombre,
+      email,
+      rol: "user",
+      organizador: false,
+      solicitudOrganizador: false
     }
-
-    console.log("Usuario creado:", nuevoUsuario)
 
     localStorage.setItem("usuario", JSON.stringify(nuevoUsuario))
 

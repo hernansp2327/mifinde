@@ -37,6 +37,7 @@ export default function Admin() {
   const renderEvento = (evento) => (
     <div
       key={evento.id}
+      className="hover:shadow-lg"
       style={{
         border: "1px solid #ccc",
         padding: "15px",
@@ -133,14 +134,24 @@ export default function Admin() {
       <h3 style={{ marginTop: "30px" }}>
         🟡 Pendientes ({pendientes.length})
       </h3>
-      {pendientes.length === 0 && <p>No hay eventos pendientes.</p>}
-      {pendientes.map(renderEvento)}
+      {pendientes.length === 0 ? (
+        <p>No hay eventos pendientes.</p>
+      ) : (
+        <div className="grid grid-cols-3 gap-6">
+          {pendientes.map(renderEvento)}
+        </div>
+      )}
 
       <h3 style={{ marginTop: "30px" }}>
         🟢 Aprobados ({aprobados.length})
       </h3>
-      {aprobados.length === 0 && <p>No hay eventos aprobados.</p>}
-      {aprobados.map(renderEvento)}
+      {aprobados.length === 0 ? (
+        <p>No hay eventos aprobados.</p>
+      ) : (
+        <div className="grid grid-cols-3 gap-6">
+          {aprobados.map(renderEvento)}
+        </div>
+      )}
 
       <h3 style={{ marginTop: "30px" }}>
         🔴 Rechazados ({rechazados.length})

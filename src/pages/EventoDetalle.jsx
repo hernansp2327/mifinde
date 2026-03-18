@@ -10,10 +10,8 @@ export default function EventoDetalle() {
   const { eventos } = useContext(EventosContext)
   const { favoritos, toggleFavorito } = useContext(FavoritosContext)
 
-  // primero intenta buscar por ID
   let evento = eventos.find(e => Number(e.id) === Number(id))
 
-  // si no encuentra, intenta por posición
   if (!evento) {
     evento = eventos[Number(id)]
   }
@@ -28,92 +26,154 @@ export default function EventoDetalle() {
   }
 
   const eventoId = Number(evento.id)
-
   const esFavorito = favoritos.includes(eventoId)
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+  const imagenFallback = "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"
 
-      {/* Hero Section */}
+  // 🔥 COMPARTIR
+  const compartirEvento = () => {
+    const url = window.location.href
+    const texto = `Mirá este evento: ${evento.titulo} - ${url}`
+
+    if (navigator.share) {
+      navigator.share({
+        title: evento.titulo,
+        text: texto,
+        url: url
+      })
+    } else {
+      window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+
+      {/* HERO */}
       <div className="relative">
-        {evento.imagen && (
-          <img
-            src={evento.imagen}
-            alt={evento.titulo}
-            className="w-full h-96 object-cover"
-          />
-        )}
-        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end">
-          <div className="p-8 text-white">
-            <h1 className="text-4xl font-bold mb-2 drop-shadow-lg">
-              {evento.titulo}
-            </h1>
-            <p className="text-xl drop-shadow-md">
-              📍 {evento.ciudad || "Ciudad no especificada"}, {evento.provincia || ""}
-            </p>
-          </div>
+
+        <img
+          src={evento.imagen || imagenFallback}
+          alt={evento.titulo}
+          className="w-full h-[420px] object-cover"
+        />
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+
+        {/* BOTONES SUPERIORES */}
+        <div className="absolute top-4 right-4 flex gap-2">
+
+          <button
+            onClick={() => toggleFavorito(eventoId)}
+            className="bg-white/90 backdrop-blur px-3 py-2 rounded-full shadow hover:scale-110 transition"
+          >
+            {esFavorito ? "❤️" : "🤍"}
+          </button>
+
+          <button
+            onClick={compartirEvento}
+            className="bg-white/90 backdrop-blur px-3 py-2 rounded-full shadow hover:scale-110 transition"
+          >
+            📤
+          </button>
+
+        </div>
+
+        {/* INFO */}
+        <div className="absolute bottom-0 p-6 text-white max-w-4xl">
+          <h1 className="text-4xl font-black mb-2 drop-shadow-lg">
+            {evento.titulo}
+          </h1>
+
+          <p className="text-lg text-gray-200">
+            📍 {evento.ciudad || "Ciudad no especificada"}, {evento.provincia || ""}
+          </p>
         </div>
       </div>
 
-      {/* Content Card */}
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        <div className="bg-white rounded-xl shadow-lg p-8 -mt-16 relative z-10">
+      {/* CONTENIDO */}
+      <div className="max-w-4xl mx-auto px-6 py-10">
 
-          {/* Category and Place */}
-          <div className="flex flex-wrap items-center gap-4 mb-6">
-            <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium">
+        <div className="bg-white rounded-2xl shadow-xl p-8 -mt-20 relative z-10">
+
+          {/* CATEGORIA + LUGAR */}
+          <div className="flex flex-wrap items-center gap-4 mb-8">
+            <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-semibold">
               🏷️ {evento.categoria}
             </span>
-            <span className="text-gray-600">
-              📌 {evento.lugar}
-            </span>
+
+            {evento.lugar && (
+              <span className="text-gray-600">
+                📌 {evento.lugar}
+              </span>
+            )}
           </div>
 
-          {/* Favorite Button */}
-          <div className="mb-8">
+          {/* BOTONES COMPARTIR EXTRA */}
+          <div className="flex gap-3 mb-10 flex-wrap">
+
             <button
-              onClick={() => toggleFavorito(eventoId)}
-              className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-                esFavorito
-                  ? "bg-red-500 hover:bg-red-600 text-white shadow-md"
-                  : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-              }`}
+              onClick={compartirEvento}
+              className="bg-black text-white px-4 py-2 rounded-lg hover:scale-105 transition"
             >
-              {esFavorito
-                ? "❤️ Quitar de favoritos"
-                : "🤍 Guardar en favoritos"}
+              📲 Compartir
             </button>
+
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(window.location.href)}`}
+              target="_blank"
+              className="bg-green-500 text-white px-4 py-2 rounded-lg hover:scale-105 transition"
+            >
+              WhatsApp
+            </a>
+
+            <a
+              href={`https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`}
+              target="_blank"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:scale-105 transition"
+            >
+              Facebook
+            </a>
+
           </div>
 
-          {/* Dates Section */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-800">📅 Fechas del Evento</h2>
+          {/* FECHAS */}
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold mb-4">📅 Fechas</h2>
+
             {evento.fechas && evento.fechas.length > 0 ? (
-              <div className="space-y-2">
+              <div className="grid gap-3">
                 {evento.fechas.map((f, i) => (
-                  <div key={i} className="bg-gray-50 p-3 rounded-lg">
-                    {f}
+                  <div
+                    key={i}
+                    className="bg-gray-100 px-4 py-3 rounded-lg font-medium"
+                  >
+                    {new Date(f).toLocaleDateString("es-AR", {
+                      weekday: "long",
+                      day: "numeric",
+                      month: "long"
+                    })}
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 italic">Sin fecha especificada</p>
+              <p className="text-gray-500 italic">Fecha a confirmar</p>
             )}
           </div>
 
-          {/* Description Section */}
+          {/* DESCRIPCIÓN */}
           {evento.descripcion && (
             <div>
-              <h2 className="text-2xl font-semibold mb-4 text-gray-800">📖 Descripción</h2>
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <p className="text-lg leading-relaxed text-gray-700">{evento.descripcion}</p>
+              <h2 className="text-2xl font-bold mb-4">📖 Descripción</h2>
+
+              <div className="bg-gray-100 p-6 rounded-xl leading-relaxed text-gray-700">
+                {evento.descripcion}
               </div>
             </div>
           )}
 
         </div>
       </div>
-
     </div>
   )
 }

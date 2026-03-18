@@ -26,12 +26,29 @@ export default function CrearEvento() {
     }
   }
 
-  const handleSubmit = (e) => {
+  const validarImagen = (url) => {
+    return new Promise((resolve) => {
+      const img = new Image()
+      img.onload = () => resolve(true)
+      img.onerror = () => resolve(false)
+      img.src = url
+    })
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (!titulo || !provincia || !ciudad || !categoria || fechas.length === 0) {
       alert("Completá todos los campos obligatorios")
       return
+    }
+
+    if (imagen) {
+      const imagenValida = await validarImagen(imagen)
+      if (!imagenValida) {
+        alert("La imagen no es válida")
+        return
+      }
     }
 
     agregarEvento({

@@ -1,14 +1,20 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useMemo } from "react";
 import { EventosContext } from "../context/EventosContext";
 import { Link } from "react-router-dom";
 
 function Home() {
-
   const contexto = useContext(EventosContext);
   const eventos = contexto?.eventos || [];
+  const favoritos = contexto?.favoritos || [];
+  const toggleFavorito = contexto?.toggleFavorito || (() => {});
 
   const [busqueda, setBusqueda] = useState("");
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todos");
+
+  const favoritosSet = useMemo(
+    () => new Set(favoritos.map((id) => Number(id))),
+    [favoritos]
+  );
 
   const categorias = [
     "Todos",
@@ -22,88 +28,98 @@ function Home() {
     "Familiar"
   ];
 
-  const eventosAprobados = eventos.filter(
-    (evento) => evento.estado === "aprobado"
+  const imagenFallback = "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee";
+
+  const imagenesPorCategoria = {
+    "Música": "https://images.unsplash.com/photo-1501386761578-eac5c94b800a",
+    "Gastronomía": "https://images.unsplash.com/photo-1498654896293-37aacf113fd9",
+    "Motor": "https://images.unsplash.com/photo-1503376780353-7e6692767b70",
+    "Familiar": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+    "Tradicionalista": "https://images.unsplash.com/photo-1511192336575-5a79af67a629",
+    "Cultura": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97",
+    "Deportes": "https://images.unsplash.com/photo-1517649763962-0c623066013b",
+    "Fiesta": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7"
+  };
+
+  const renderImagen = (evento, altura = "h-40") => (
+    <div className="relative overflow-hidden">
+      <img
+        src={
+          evento.imagen ||
+          imagenesPorCategoria[evento.categoria] ||
+          imagenFallback
+        }
+        alt={evento.titulo}
+        className={`w-full ${altura} object-cover transition-transform duration-300 group-hover:scale-105`}
+        onError={(e) => { e.target.src = imagenFallback; }}
+      />
+      <div className="absolute inset-0 bg-black/20"></div>
+
+      <div className="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+        {evento.categoria}
+      </div>
+    </div>
   );
 
-  const eventosFiltrados = eventosAprobados.filter((evento) => {
+  // 🔥 OPTIMIZADO
+  const eventosFiltrados = useMemo(() => {
+    return eventos
+      .filter((evento) => evento.estado === "aprobado")
+      .filter((evento) => {
+        const texto = busqueda.toLowerCase();
 
-    const coincideBusqueda =
-      (evento.titulo || "").toLowerCase().includes(busqueda.toLowerCase()) ||
-      (evento.ciudad || "").toLowerCase().includes(busqueda.toLowerCase()) ||
-      (evento.categoria || "").toLowerCase().includes(busqueda.toLowerCase());
+        const coincideBusqueda =
+          (evento.titulo || "").toLowerCase().includes(texto) ||
+          (evento.ciudad || "").toLowerCase().includes(texto) ||
+          (evento.categoria || "").toLowerCase().includes(texto);
 
-    const coincideCategoria =
-      categoriaSeleccionada === "Todos" ||
-      evento.categoria === categoriaSeleccionada;
+        const coincideCategoria =
+          categoriaSeleccionada === "Todos" ||
+          evento.categoria === categoriaSeleccionada;
 
-    return coincideBusqueda && coincideCategoria;
+        return coincideBusqueda && coincideCategoria;
+      })
+      .sort((a, b) => {
+        const aEsFavorito = favoritosSet.has(Number(a.id));
+        const bEsFavorito = favoritosSet.has(Number(b.id));
 
-  });
+        if (aEsFavorito === bEsFavorito) return 0;
+        return aEsFavorito ? -1 : 1;
+      });
+  }, [eventos, busqueda, categoriaSeleccionada, favoritosSet]);
 
-  // EVENTO DESTACADO
-
-  const eventoDestacado = eventosFiltrados.find(e => e.destacado);
-
-  // EVENTOS POPULARES (simulado)
-
-  const eventosPopulares = [...eventosFiltrados]
-    .sort((a, b) => (b.destacado ? 1 : 0) - (a.destacado ? 1 : 0))
-    .slice(0, 4);
-
-  const otrosEventos = eventosFiltrados.filter(
-    e => e.id !== eventoDestacado?.id
+  const eventoDestacado = useMemo(
+    () => eventosFiltrados.find((e) => e.destacado),
+    [eventosFiltrados]
   );
-
-  // EVENTOS ESTE FIN DE SEMANA
-
-  const hoy = new Date();
-  const dia = hoy.getDay();
-
-  const diasHastaSabado = (6 - dia + 7) % 7;
-  const sabado = new Date(hoy);
-  sabado.setDate(hoy.getDate() + diasHastaSabado);
-
-  const domingo = new Date(sabado);
-  domingo.setDate(sabado.getDate() + 1);
-
-  const eventosFinDeSemana = eventosFiltrados.filter((evento) => {
-
-    if (!evento.fechas) return false;
-
-    return evento.fechas.some((fecha) => {
-      const fechaEvento = new Date(fecha);
-      return fechaEvento >= sabado && fechaEvento <= domingo;
-    });
-
-  });
 
   return (
-    <div className="p-6">
+    <div className="max-w-6xl mx-auto p-6">
 
       <h1 className="text-4xl font-black mb-6">Eventos disponibles</h1>
 
       {/* BUSCADOR */}
-
-      <input
-        type="text"
-        placeholder="🔎 Buscar eventos, ciudades o categorías"
-        value={busqueda}
-        onChange={(e) => setBusqueda(e.target.value)}
-        className="w-full p-4 border rounded-lg shadow-sm mb-4"
-      />
+      <div className="relative mb-4">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔎</span>
+        <input
+          type="text"
+          placeholder="Buscar eventos..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          className="w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-orange-500 outline-none"
+        />
+      </div>
 
       {/* CATEGORÍAS */}
-
-      <div className="flex flex-wrap gap-4 mb-6">
+      <div className="flex flex-wrap gap-3 mb-8">
         {categorias.map((cat) => (
           <button
             key={cat}
             onClick={() => setCategoriaSeleccionada(cat)}
-            className={`px-3 py-1 rounded-full border ${
+            className={`px-4 py-2 rounded-full transition ${
               categoriaSeleccionada === cat
-                ? "bg-orange-500 text-white"
-                : "bg-white"
+                ? "bg-orange-500 text-white shadow"
+                : "bg-gray-100 hover:bg-gray-200"
             }`}
           >
             {cat}
@@ -111,185 +127,70 @@ function Home() {
         ))}
       </div>
 
-      {/* EVENTO DESTACADO */}
-
+      {/* DESTACADO */}
       {eventoDestacado && (
         <Link to={`/eventos/${eventoDestacado.id}`}>
-          <div
-            className="relative rounded-lg mb-10 shadow overflow-hidden min-h-[320px]"
-            style={{
-              backgroundImage: eventoDestacado.imagen
-                ? `url(${eventoDestacado.imagen})`
-                : "none",
-              backgroundSize: "cover",
-              backgroundPosition: "center"
-            }}
-          >
+          <div className="relative rounded-2xl mb-10 shadow-xl overflow-hidden group cursor-pointer">
 
-            <div className="bg-black/60 p-6 text-white h-full flex flex-col justify-end">
+            <img
+              src={eventoDestacado.imagen || imagenFallback}
+              className="w-full h-[320px] object-cover group-hover:scale-105 transition duration-500"
+            />
 
-              <img
-                src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30"
-                alt="Evento destacado"
-                className="w-full rounded-lg mb-4"
-              />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
 
-              <h2 className="text-2xl font-bold mb-2">
-                ⭐ Evento destacado
-              </h2>
-
-              <h3 className="text-xl font-semibold">
-                {eventoDestacado.titulo}
-              </h3>
-
-              <p>
-                📅 {eventoDestacado.fechas?.[0]
-                  ? new Date(eventoDestacado.fechas[0]).toLocaleDateString("es-AR")
-                  : "Fecha a confirmar"}
-              </p>
-
-              <p>
-                📍 {eventoDestacado.ciudad}, {eventoDestacado.provincia}
-              </p>
-
+            <div className="absolute bottom-0 p-6 text-white">
+              <h2 className="text-2xl font-bold">⭐ Evento destacado</h2>
+              <h3 className="text-xl">{eventoDestacado.titulo}</h3>
             </div>
-
           </div>
         </Link>
       )}
 
-      {/* EVENTOS POPULARES */}
+      {/* LISTA */}
+      {eventosFiltrados.length === 0 ? (
+        <p className="text-gray-500 text-center mt-10">
+          No se encontraron eventos 😕
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {eventosFiltrados.map((evento) => (
+            <Link key={evento.id} to={`/eventos/${evento.id}`}>
+              <div className="relative bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition duration-300 group cursor-pointer">
 
-      <h2 className="text-2xl font-bold mb-4">
-        🔥 Eventos populares
-      </h2>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleFavorito(evento.id);
+                  }}
+                  className="absolute top-3 right-3 z-10 text-xl"
+                  aria-label="Toggle favorito"
+                >
+                  {favoritosSet.has(Number(evento.id)) ? "❤️" : "🤍"}
+                </button>
 
-      <div className="grid gap-4 mb-10">
+                {renderImagen(evento)}
 
-        {eventosPopulares.map((evento) => (
+                <div className="p-4">
+                  <h3 className="font-bold text-lg mb-1">{evento.titulo}</h3>
 
-          <Link key={evento.id} to={`/eventos/${evento.id}`}>
+                  <p className="text-sm text-gray-600">
+                    📍 {evento.ciudad}, {evento.provincia}
+                  </p>
 
-            <div className="border p-4 rounded-lg shadow hover:shadow-lg">
-
-              {evento.imagen && (
-                <img
-                  src={evento.imagen}
-                  alt={evento.titulo}
-                  className="w-full h-40 object-cover rounded mb-3"
-                />
-              )}
-
-              <h3 className="text-lg font-semibold">
-                {evento.titulo}
-              </h3>
-
-              <p>
-                📅 {evento.fechas?.[0]
-                  ? new Date(evento.fechas[0]).toLocaleDateString("es-AR")
-                  : "Fecha a confirmar"}
-              </p>
-
-              <p>
-                📍 {evento.ciudad}, {evento.provincia}
-              </p>
-
-            </div>
-
-          </Link>
-
-        ))}
-
-      </div>
-
-      {/* EVENTOS ESTE FIN DE SEMANA */}
-
-      {eventosFinDeSemana.length > 0 && (
-        <div className="mb-10">
-
-          <h2 className="text-2xl font-bold mb-4">
-            📅 Este fin de semana
-          </h2>
-
-          <div className="grid gap-4">
-
-            {eventosFinDeSemana.map((evento) => (
-              <Link key={evento.id} to={`/eventos/${evento.id}`}>
-                <div className="border p-4 rounded-lg shadow bg-orange-50 hover:shadow-lg">
-
-                  {evento.imagen && (
-                    <img
-                      src={evento.imagen}
-                      alt={evento.titulo}
-                      className="w-full h-40 object-cover rounded mb-3"
-                    />
-                  )}
-
-                  <h3 className="text-lg font-semibold">
-                    {evento.titulo}
-                  </h3>
-
-                  <p>
+                  <p className="text-sm text-gray-600">
                     📅 {evento.fechas?.[0]
                       ? new Date(evento.fechas[0]).toLocaleDateString("es-AR")
                       : "Fecha a confirmar"}
                   </p>
-
-                  <p>
-                    📍 {evento.ciudad}, {evento.provincia}
-                  </p>
-
                 </div>
-              </Link>
-            ))}
 
-          </div>
-
+              </div>
+            </Link>
+          ))}
         </div>
       )}
-
-      {/* OTROS EVENTOS */}
-
-      <h2 className="text-2xl font-bold mb-4">
-        🎉 Otros eventos
-      </h2>
-
-      <div className="grid gap-4">
-
-        {otrosEventos.map((evento) => (
-          <Link key={evento.id} to={`/eventos/${evento.id}`}>
-            <div className="border p-4 rounded-lg shadow hover:shadow-lg">
-
-              {evento.imagen && (
-                <img
-                  src={evento.imagen}
-                  alt={evento.titulo}
-                  className="w-full h-48 object-cover rounded mb-3"
-                />
-              )}
-
-              <h2 className="text-xl font-semibold">
-                {evento.titulo}
-              </h2>
-
-              <p>
-                📅 {evento.fechas?.[0]
-                  ? new Date(evento.fechas[0]).toLocaleDateString("es-AR")
-                  : "Fecha a confirmar"}
-              </p>
-
-              <p>
-                📍 {evento.ciudad}, {evento.provincia}
-              </p>
-
-              <p className="mt-2">{evento.descripcion}</p>
-
-            </div>
-          </Link>
-        ))}
-
-      </div>
-
     </div>
   );
 }

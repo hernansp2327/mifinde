@@ -6,45 +6,38 @@ const sumarDias = (dias) => {
   return fecha.toISOString().split("T")[0]
 }
 
-export const eventos = [
-  {
-    id: 1,
-    titulo: "Fiesta Electrónica",
-    lugar: "Paraná",
-    fecha: sumarDias(0),
-    categoria: "Entretenimiento",
-    descripcion: "Una noche a pura música electrónica con DJs invitados."
-  },
-  {
-    id: 2,
-    titulo: "Festival Gastronómico",
-    lugar: "Diamante",
-    fecha: sumarDias(2),
-    categoria: "Gastronomía",
-    descripcion: "Comida regional, food trucks y shows en vivo."
-  },
-  {
-    id: 3,
-    titulo: "Peña Folklórica",
-    lugar: "Victoria",
-    fecha: sumarDias(5),
-    categoria: "Tradicional",
-    descripcion: "Folklore y tradición argentina."
-  },
-  {
-    id: 4,
-    titulo: "Conferencia de Innovación",
-    lugar: "Córdoba",
-    fecha: sumarDias(10),
-    categoria: "Charlas y Formación",
-    descripcion: "Charlas sobre tecnología y emprendimiento."
-  },
-  {
-    id: 5,
-    titulo: "Exposición de Arte",
-    lugar: "Buenos Aires",
-    fecha: sumarDias(30),
-    categoria: "Cultura",
-    descripcion: "Muestra de artistas contemporáneos."
-  }
+const imagenes = [
+  "https://images.unsplash.com/photo-1501386761578-eac5c94b800a", // musica
+  "https://images.unsplash.com/photo-1498654896293-37aacf113fd9", // comida
+  "https://images.unsplash.com/photo-1503376780353-7e6692767b70", // autos
+  "https://images.unsplash.com/photo-1518972559570-7cc1309f3229", // rock
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee", // familia
+  "https://images.unsplash.com/photo-1511192336575-5a79af67a629"  // folklore
 ]
+
+const categorias = [
+  "Música",
+  "Gastronomía",
+  "Motor",
+  "Familiar",
+  "Tradicionalista"
+]
+
+const ciudades = ["Paraná", "Diamante", "Victoria"]
+
+export const eventos = Array.from({ length: 30 }, (_, i) => {
+  const categoria = categorias[i % categorias.length]
+
+  return {
+    id: i + 1,
+    titulo: `Evento ${categoria} ${i + 1}`,
+    ciudad: ciudades[i % ciudades.length],
+    provincia: "Entre Ríos",
+    fechas: [sumarDias(i)],
+    categoria,
+    descripcion: `Disfrutá de un evento de ${categoria.toLowerCase()} con actividades, música y entretenimiento.`,
+    imagen: imagenes[i % imagenes.length],
+    destacado: i % 7 === 0, // algunos destacados
+    estado: "aprobado"
+  }
+})

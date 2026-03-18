@@ -17,6 +17,7 @@ import Admin from "./pages/Admin"
 import Login from "./pages/Login"
 import Registro from "./pages/Registro"
 import Favoritos from "./pages/Favoritos"
+import Calendario from "./pages/Calendario"
 
 function AppContent() {
 
@@ -53,6 +54,10 @@ function AppContent() {
 
               <Link to="/eventos" className="text-gray-700 hover:text-orange-500 transition">
                 Eventos
+              </Link>
+
+              <Link to="/calendario" className="text-gray-700 hover:text-orange-500 transition">
+                Calendario
               </Link>
 
               {/* CONTADOR FAVORITOS */}
@@ -189,6 +194,8 @@ function AppContent() {
             />
 
             <Route path="/favoritos" element={<Favoritos />} />
+
+            <Route path="/calendario" element={<Calendario />} />
 
             <Route
               path="/crear-evento"

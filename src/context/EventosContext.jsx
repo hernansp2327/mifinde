@@ -17,6 +17,7 @@ export function EventosProvider({ children }) {
       }))
     }
 
+    // 🔥 si no hay nada guardado → usa los mock
     return eventosMock.map(e => ({
       ...e,
       id: Number(e.id),
@@ -24,6 +25,8 @@ export function EventosProvider({ children }) {
       estado: e.estado || "aprobado"
     }))
   })
+
+  const [favoritos, setFavoritos] = useState([])
 
   useEffect(() => {
     localStorage.setItem("eventos", JSON.stringify(eventos))
@@ -85,13 +88,23 @@ export function EventosProvider({ children }) {
     )
   }
 
+  const toggleFavorito = (id) => {
+    setFavoritos(prev =>
+      prev.includes(id)
+        ? prev.filter(favoritoId => favoritoId !== id)
+        : [...prev, id]
+    )
+  }
+
   return (
     <EventosContext.Provider
       value={{
         eventos,
+        favoritos,
         agregarEvento,
         deleteEvent,
         toggleFeatured,
+        toggleFavorito,
         approveEvent,
         rejectEvent
       }}
