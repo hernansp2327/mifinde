@@ -1,19 +1,17 @@
 import { useContext } from "react"
 import { Navigate } from "react-router-dom"
-import { UserContext } from "../context/UserContext"
+import { AuthContext } from "../context/AuthContext"
 
 export default function ProtectedRoute({ children, requiredRole }) {
 
-  const { usuario } = useContext(UserContext)
+  const { user, rol } = useContext(AuthContext)
 
-  // si no hay usuario → ir al login
-  if (!usuario) {
-    return <Navigate to="/login" replace />
+  if (!user) {
+    return <Navigate to="/login" />
   }
 
-  // si la ruta requiere rol específico
-  if (requiredRole && usuario.rol !== requiredRole) {
-    return <Navigate to="/" replace />
+  if (requiredRole && rol !== requiredRole) {
+    return <Navigate to="/" />
   }
 
   return children

@@ -1,12 +1,12 @@
 import { useState, useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import { EventosContext } from "../context/EventosContext"
-import { UserContext } from "../context/UserContext"
+import { AuthContext } from "../context/AuthContext"
 
 export default function CrearEvento() {
 
   const { agregarEvento } = useContext(EventosContext)
-  const { usuario } = useContext(UserContext)
+  const { user } = useContext(AuthContext)
   const navigate = useNavigate()
 
   const [titulo, setTitulo] = useState("")
@@ -51,7 +51,7 @@ export default function CrearEvento() {
       }
     }
 
-    agregarEvento({
+    await agregarEvento({
       titulo,
       provincia,
       ciudad,
@@ -60,8 +60,9 @@ export default function CrearEvento() {
       descripcion,
       fechas,
       imagen,
-      creador: usuario.nombre,
-      estado: "pendiente"
+      creador: user?.email || "anonimo",
+      estado: "pendiente",
+      destacado: false
     })
 
     navigate("/eventos")

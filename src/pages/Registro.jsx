@@ -1,32 +1,38 @@
-import { useState, useContext } from "react"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { UserContext } from "../context/UserContext"
+import { auth, db } from "../firebase"
+import { createUserWithEmailAndPassword } from "firebase/auth"
+import { doc, setDoc } from "firebase/firestore"
 
 export default function Registro() {
 
-  const { setUsuario } = useContext(UserContext)
   const navigate = useNavigate()
 
   const [nombre, setNombre] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
 
-  const handleRegistro = (e) => {
+  const handleRegistro = async (e) => {
     e.preventDefault()
 
-    const nuevoUsuario = {
-      nombre,
-      email,
-      rol: "user",
-      organizador: false,
-      solicitudOrganizador: false
+    try {
+      // 🔐 crear usuario en Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+
+      // 💾 guardar datos en Firestore
+      await setDoc(doc(db, "usuarios", userCredential.user.uid), {
+        nombre,
+        email,
+        rol: "usuario",
+        solicitudOrganizador: false
+      })
+
+      navigate("/")
+    } catch (err) {
+      console.error(err)
+      setError("Error al crear la cuenta")
     }
-
-    localStorage.setItem("usuario", JSON.stringify(nuevoUsuario))
-
-    setUsuario(nuevoUsuario)
-
-    navigate("/")
   }
 
   return (
@@ -66,6 +72,10 @@ export default function Registro() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+
+          {error && (
+            <p className="text-red-500 text-sm">{error}</p>
+          )}
 
           <button
             type="submit"
