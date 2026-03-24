@@ -1,27 +1,26 @@
 import { useState, useContext } from "react"
 import { useNavigate } from "react-router-dom"
-import { UserContext } from "../context/UserContext"
+import { AuthContext } from "../context/AuthContext"
 
 export default function Login() {
 
-  const { setUsuario } = useContext(UserContext)
+  const { login } = useContext(AuthContext)
   const navigate = useNavigate()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
 
-    // login simple por ahora
-    const nuevoUsuario = {
-      nombre: email,
-      rol: "user"
+    try {
+      await login(email, password)
+      navigate("/")
+    } catch (err) {
+      console.error(err)
+      setError("Email o contraseña incorrectos")
     }
-
-    setUsuario(nuevoUsuario)
-
-    navigate("/")
   }
 
   return (
@@ -52,6 +51,10 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+
+          {error && (
+            <p className="text-red-500 text-sm">{error}</p>
+          )}
 
           <button
             type="submit"
