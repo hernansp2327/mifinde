@@ -3,8 +3,8 @@ import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom"
 import { useContext } from "react"
 
 import { FavoritosContext, FavoritosProvider } from "./context/FavoritosContext"
-import { UserContext, UserProvider } from "./context/UserContext"
 import { EventosProvider } from "./context/EventosContext"
+import { AuthProvider, AuthContext } from "./context/AuthContext"
 
 import ProtectedRoute from "./components/ProtectedRoute"
 
@@ -22,13 +22,12 @@ import Calendario from "./pages/Calendario"
 function AppContent() {
 
   const favoritosContext = useContext(FavoritosContext)
-  const userContext = useContext(UserContext)
+  const { user, rol, logout } = useContext(AuthContext)
 
   const favoritos = favoritosContext?.favoritos || []
-  const usuario = userContext?.usuario
 
   const puedeCrearEvento =
-    usuario && (usuario.rol === "admin" || usuario.rol === "organizador")
+    user && (rol === "admin" || rol === "organizador")
 
   return (
     <BrowserRouter>
@@ -60,7 +59,7 @@ function AppContent() {
                 Calendario
               </Link>
 
-              {/* CONTADOR FAVORITOS */}
+              {/* FAVORITOS */}
               <Link
                 to="/favoritos"
                 className="flex items-center gap-1 text-gray-700 hover:text-orange-500 transition"
@@ -77,7 +76,7 @@ function AppContent() {
                 </Link>
               )}
 
-              {usuario?.rol === "admin" && (
+              {rol === "admin" && (
                 <Link
                   to="/admin"
                   className="text-gray-700 hover:text-orange-500 transition"
@@ -86,62 +85,26 @@ function AppContent() {
                 </Link>
               )}
 
-              {usuario ? (
+              {user ? (
 
                 <div className="relative group text-xs text-gray-500 border-l pl-4">
 
                   <span className="cursor-pointer">
-                    {usuario.nombre} ({usuario.rol})
+                    {user.email} ({rol})
                   </span>
 
-                  {/* SOLICITAR ORGANIZADOR */}
-
-                  {usuario.rol === "user" && !usuario.solicitudOrganizador && (
-                    <button
-                      onClick={() => {
-
-                        const actualizado = {
-                          ...usuario,
-                          solicitudOrganizador: true
-                        }
-
-                        localStorage.setItem(
-                          "usuario",
-                          JSON.stringify(actualizado)
-                        )
-
-                        window.location.reload()
-                      }}
-                      className="ml-3 text-orange-500 underline text-xs"
-                    >
-                      Quiero ser organizador
-                    </button>
-                  )}
-
-                  {usuario.solicitudOrganizador && usuario.rol === "user" && (
-                    <span className="ml-3 text-gray-400 text-xs">
-                      Solicitud enviada
-                    </span>
-                  )}
-
                   {/* MENU USUARIO */}
-
                   <div className="absolute right-0 top-full pt-2 hidden group-hover:block">
-
                     <div className="bg-white border shadow-md rounded w-36">
 
                       <button
-                        onClick={() => {
-                          localStorage.removeItem("usuario")
-                          window.location.reload()
-                        }}
+                        onClick={logout}
                         className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
                       >
                         Cerrar sesión
                       </button>
 
                     </div>
-
                   </div>
 
                 </div>
@@ -173,15 +136,12 @@ function AppContent() {
         </nav>
 
         {/* CONTENIDO */}
-
         <div className="flex-1 px-6 py-10 max-w-6xl mx-auto w-full">
 
           <Routes>
 
             <Route path="/" element={<Home />} />
-
             <Route path="/eventos" element={<Eventos />} />
-
             <Route path="/eventos/:id" element={<EventoDetalle />} />
 
             <Route
@@ -194,7 +154,6 @@ function AppContent() {
             />
 
             <Route path="/favoritos" element={<Favoritos />} />
-
             <Route path="/calendario" element={<Calendario />} />
 
             <Route
@@ -216,7 +175,6 @@ function AppContent() {
             />
 
             <Route path="/login" element={<Login />} />
-
             <Route path="/registro" element={<Registro />} />
 
           </Routes>
@@ -231,12 +189,12 @@ function AppContent() {
 
 export default function App() {
   return (
-    <UserProvider>
+    <AuthProvider>
       <EventosProvider>
         <FavoritosProvider>
           <AppContent />
         </FavoritosProvider>
       </EventosProvider>
-    </UserProvider>
+    </AuthProvider>
   )
 }

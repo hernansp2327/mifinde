@@ -1,22 +1,71 @@
-import { useContext } from "react"
-import { EventosContext } from "../context/EventosContext"
+import { useContext, useState } from "react";
+import { EventosContext } from "../context/EventosContext";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Admin() {
+
+  const { user, rol } = useContext(AuthContext);
 
   const {
     eventos,
     deleteEvent,
     toggleFeatured,
     approveEvent,
-    rejectEvent
-  } = useContext(EventosContext)
+    rejectEvent,
+    agregarEvento
+  } = useContext(EventosContext);
 
-  const pendientes = eventos.filter(e => e.estado === "pendiente")
-  const aprobados = eventos.filter(e => e.estado === "aprobado")
-  const rechazados = eventos.filter(e => e.estado === "rechazado")
+  // 🔐 PROTECCIÓN ADMIN
+  if (!user) {
+    return <p style={{ padding: "20px" }}>Tenés que iniciar sesión</p>;
+  }
 
+  if (rol !== "admin") {
+    return <p style={{ padding: "20px" }}>No tenés permisos para entrar acá</p>;
+  }
+
+  // 🆕 FORMULARIO NUEVO EVENTO
+  const [nuevoEvento, setNuevoEvento] = useState({
+    titulo: "",
+    descripcion: "",
+    fecha: ""
+  });
+
+  const handleChange = (e) => {
+    setNuevoEvento({
+      ...nuevoEvento,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!nuevoEvento.titulo || !nuevoEvento.fecha) {
+      alert("Faltan datos");
+      return;
+    }
+
+    agregarEvento({
+      ...nuevoEvento,
+      estado: "aprobado",
+      destacado: false
+    });
+
+    setNuevoEvento({
+      titulo: "",
+      descripcion: "",
+      fecha: ""
+    });
+  };
+
+  // 📊 FILTROS
+  const pendientes = eventos.filter(e => e.estado === "pendiente");
+  const aprobados = eventos.filter(e => e.estado === "aprobado");
+  const rechazados = eventos.filter(e => e.estado === "rechazado");
+
+  // 📅 FECHAS
   const renderFechas = (evento) => {
-    // Compatibilidad con eventos viejos (fecha única)
     if (evento.fechas && evento.fechas.length > 0) {
       return (
         <ul>
@@ -24,16 +73,17 @@ export default function Admin() {
             <li key={i}>{f}</li>
           ))}
         </ul>
-      )
+      );
     }
 
     if (evento.fecha) {
-      return <p>{evento.fecha}</p>
+      return <p>{evento.fecha}</p>;
     }
 
-    return <p>Sin fecha</p>
-  }
+    return <p>Sin fecha</p>;
+  };
 
+  // 🎯 CARD EVENTO
   const renderEvento = (evento) => (
     <div
       key={evento.id}
@@ -124,13 +174,46 @@ export default function Admin() {
 
       </div>
     </div>
-  )
+  );
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
 
       <h2>Panel de Administración</h2>
 
+      {/* 🆕 FORMULARIO */}
+      <form onSubmit={handleSubmit} style={{ marginBottom: "30px" }}>
+
+        <input
+          type="text"
+          name="titulo"
+          placeholder="Título"
+          value={nuevoEvento.titulo}
+          onChange={handleChange}
+        />
+
+        <input
+          type="text"
+          name="descripcion"
+          placeholder="Descripción"
+          value={nuevoEvento.descripcion}
+          onChange={handleChange}
+        />
+
+        <input
+          type="date"
+          name="fecha"
+          value={nuevoEvento.fecha}
+          onChange={handleChange}
+        />
+
+        <button type="submit">
+          Crear evento
+        </button>
+
+      </form>
+
+      {/* 🟡 PENDIENTES */}
       <h3 style={{ marginTop: "30px" }}>
         🟡 Pendientes ({pendientes.length})
       </h3>
@@ -142,6 +225,7 @@ export default function Admin() {
         </div>
       )}
 
+      {/* 🟢 APROBADOS */}
       <h3 style={{ marginTop: "30px" }}>
         🟢 Aprobados ({aprobados.length})
       </h3>
@@ -153,12 +237,18 @@ export default function Admin() {
         </div>
       )}
 
+      {/* 🔴 RECHAZADOS */}
       <h3 style={{ marginTop: "30px" }}>
         🔴 Rechazados ({rechazados.length})
       </h3>
-      {rechazados.length === 0 && <p>No hay eventos rechazados.</p>}
-      {rechazados.map(renderEvento)}
+      {rechazados.length === 0 ? (
+        <p>No hay eventos rechazados.</p>
+      ) : (
+        <div className="grid grid-cols-3 gap-6">
+          {rechazados.map(renderEvento)}
+        </div>
+      )}
 
     </div>
-  )
+  );
 }
