@@ -1,6 +1,6 @@
 import { useContext } from "react"
-import { FavoritosContext } from "../context/FavoritosContext"
-import { EventosContext } from "../context/EventosContext"
+import { FavoritosContext } from "../../mifinde-new/src/context/FavoritosContext"
+import { EventosContext } from "../../mifinde-new/src/context/EventosContext"
 import { Link } from "react-router-dom"
 
 export default function Favoritos() {
