@@ -13,7 +13,7 @@ import Eventos from "./pages/Eventos"
 import EventoDetalle from "./pages/EventoDetalle"
 import MisEventos from "./pages/MisEventos"
 import CrearEvento from "./pages/CrearEvento"
-import Admin from "./pages/Admin"
+// import Admin from "./pages/Admin" ❌ lo dejamos comentado
 import Login from "./pages/Login"
 import Registro from "./pages/Registro"
 import Favoritos from "./pages/Favoritos"
@@ -76,14 +76,15 @@ function AppContent() {
                 </Link>
               )}
 
-              {rol === "admin" && (
+              {/* ❌ ADMIN DESACTIVADO TEMPORAL */}
+              {/* {rol === "admin" && (
                 <Link
                   to="/admin"
                   className="text-gray-700 hover:text-orange-500 transition"
                 >
                   Administración
                 </Link>
-              )}
+              )} */}
 
               {user ? (
 
@@ -165,6 +166,8 @@ function AppContent() {
               }
             />
 
+            {/* ❌ ADMIN DESACTIVADO */}
+            {/* 
             <Route
               path="/admin"
               element={
@@ -173,6 +176,7 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
+            */}
 
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Registro />} />

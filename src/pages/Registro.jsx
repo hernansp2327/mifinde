@@ -12,9 +12,13 @@ export default function Registro() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
 
   const handleRegistro = async (e) => {
     e.preventDefault()
+
+    setError("")
+    setLoading(true)
 
     try {
       // 🔐 crear usuario en Firebase Auth
@@ -28,10 +32,16 @@ export default function Registro() {
         solicitudOrganizador: false
       })
 
+      // 🧠 pequeña pausa para evitar error de render
+      await new Promise(resolve => setTimeout(resolve, 300))
+
       navigate("/")
+
     } catch (err) {
       console.error(err)
-      setError("Error al crear la cuenta")
+      setError(err.message) // 🔥 ahora muestra el error real
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -79,9 +89,10 @@ export default function Registro() {
 
           <button
             type="submit"
-            className="bg-orange-500 text-white p-3 rounded-lg hover:bg-orange-600"
+            disabled={loading}
+            className="bg-orange-500 text-white p-3 rounded-lg hover:bg-orange-600 disabled:opacity-50"
           >
-            Crear cuenta
+            {loading ? "Creando cuenta..." : "Crear cuenta"}
           </button>
 
         </form>

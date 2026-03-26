@@ -13,6 +13,7 @@ export function AuthProvider({ children }) {
 
   const [user, setUser] = useState(null);
   const [rol, setRol] = useState(null);
+  const [loading, setLoading] = useState(true); // 🔥 CLAVE
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (userFirebase) => {
@@ -20,17 +21,19 @@ export function AuthProvider({ children }) {
       if (userFirebase) {
         setUser(userFirebase);
 
-        // 🔥 TRAER ROL
         const ref = doc(db, "usuarios", userFirebase.uid);
         const snap = await getDoc(ref);
 
         if (snap.exists()) {
           setRol(snap.data().rol);
         }
+
       } else {
         setUser(null);
         setRol(null);
       }
+
+      setLoading(false); // 🔥 IMPORTANTE
     });
 
     return () => unsubscribe();
@@ -45,7 +48,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, rol, login, logout }}>
+    <AuthContext.Provider value={{ user, rol, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

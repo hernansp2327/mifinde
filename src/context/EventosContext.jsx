@@ -5,7 +5,8 @@ import {
   addDoc,
   onSnapshot,
   deleteDoc,
-  doc
+  doc,
+  updateDoc
 } from "firebase/firestore";
 
 export const EventosContext = createContext();
@@ -24,7 +25,7 @@ export function EventosProvider({ children }) {
       setEventos(lista);
     });
 
-    return () => unsubscribe(); // limpiar listener
+    return () => unsubscribe();
   }, []);
 
   // ➕ AGREGAR evento
@@ -37,7 +38,7 @@ export function EventosProvider({ children }) {
   };
 
   // ❌ ELIMINAR evento
-  const eliminarEvento = async (id) => {
+  const deleteEvent = async (id) => {
     try {
       await deleteDoc(doc(db, "eventos", id));
     } catch (error) {
@@ -45,8 +46,52 @@ export function EventosProvider({ children }) {
     }
   };
 
+  // ✅ APROBAR evento
+  const approveEvent = async (id) => {
+    try {
+      await updateDoc(doc(db, "eventos", id), {
+        estado: "aprobado"
+      });
+    } catch (error) {
+      console.error("Error al aprobar evento:", error);
+    }
+  };
+
+  // ❌ RECHAZAR evento
+  const rejectEvent = async (id) => {
+    try {
+      await updateDoc(doc(db, "eventos", id), {
+        estado: "rechazado"
+      });
+    } catch (error) {
+      console.error("Error al rechazar evento:", error);
+    }
+  };
+
+  // ⭐ DESTACAR evento
+  const toggleFeatured = async (id) => {
+    try {
+      const evento = eventos.find(e => e.id === id);
+
+      await updateDoc(doc(db, "eventos", id), {
+        destacado: !evento?.destacado
+      });
+    } catch (error) {
+      console.error("Error al destacar evento:", error);
+    }
+  };
+
   return (
-    <EventosContext.Provider value={{ eventos, agregarEvento, eliminarEvento }}>
+    <EventosContext.Provider
+      value={{
+        eventos,
+        agregarEvento,
+        deleteEvent,
+        approveEvent,
+        rejectEvent,
+        toggleFeatured
+      }}
+    >
       {children}
     </EventosContext.Provider>
   );
